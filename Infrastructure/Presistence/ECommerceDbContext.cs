@@ -101,6 +101,24 @@ namespace Infrastructure.Presistence
             });
 
 
+
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.Property(p => p.OwnerId).IsRequired();
+                entity.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(p => p.OwnerId)
+                .HasPrincipalKey(u => u.Id)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
+
+
+
+
+            
+                
+
+
         }
 
 

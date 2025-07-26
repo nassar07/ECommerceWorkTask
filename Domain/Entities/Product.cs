@@ -19,5 +19,7 @@ namespace Domain.Entities
         
         public Category Category { get; set; } = null!;
         public ICollection<ProductSize> Sizes { get; set; } = new List<ProductSize>();
+
+        public string OwnerId { get; set; }
     }
 }

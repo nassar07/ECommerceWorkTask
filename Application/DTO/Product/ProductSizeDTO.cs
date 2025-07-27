@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.DTO.Product
+{
+    public class ProductSizeDTO
+    {
+        public string Size { get; set; } = null!;
+        public decimal Price { get; set; }
+    }
+}

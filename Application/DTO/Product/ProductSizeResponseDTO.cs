@@ -2,21 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Domain.Entities
+namespace Application.DTO.Product
 {
-    public class ProductSize
+    public class ProductSizeResponseDTO
     {
         public int Id { get; set; }
         public string Size { get; set; } = null!;
         public decimal Price { get; set; }
-
-        
-        public int ProductId { get; set; }
-
-        
-        public Product Product { get; set; } = null!;
     }
 }

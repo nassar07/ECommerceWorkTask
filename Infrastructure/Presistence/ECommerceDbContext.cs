@@ -10,11 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Presistence
 {
-    public class ECommerceDbContext : IdentityDbContext<ApplicationUser>
+    public class ECommerceDbContext : IdentityDbContext<ApplicationUser>, IECommerceDbContext
     {
 
-        public ECommerceDbContext(DbContextOptions<ECommerceDbContext> options ) : base( options ) { }
-        
+        public ECommerceDbContext(DbContextOptions<ECommerceDbContext> options) : base(options) { }
+
         DbSet<Product> products { get; set; }
         DbSet<ProductSize> productSizes { get; set; }
         DbSet<Category> categories { get; set; }
@@ -27,7 +27,7 @@ namespace Infrastructure.Presistence
         {
             base.OnModelCreating(modelBuilder);
 
-           
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -46,7 +46,7 @@ namespace Infrastructure.Presistence
                       .HasForeignKey(e => e.CategoryId);
             });
 
-            
+
             modelBuilder.Entity<ProductSize>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -66,7 +66,7 @@ namespace Infrastructure.Presistence
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(e => e.IsShipped).HasDefaultValue(false);
 
-                
+
                 entity.HasOne<ApplicationUser>()
                       .WithMany()
                       .HasForeignKey(e => e.ClientId)
@@ -89,7 +89,7 @@ namespace Infrastructure.Presistence
                       .HasForeignKey(e => e.ProductSizeId);
             });
 
-            
+
             modelBuilder.Entity<Stock>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -115,8 +115,8 @@ namespace Infrastructure.Presistence
 
 
 
-            
-                
+
+
 
 
         }

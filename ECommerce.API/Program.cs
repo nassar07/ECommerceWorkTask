@@ -1,8 +1,14 @@
+using System.Text.Json.Serialization;
+using Application;
+using Application.Common.Interfaces;
 using Infrastructure.Identity;
 using Infrastructure.Presistence;
+using Infrastructure.Repository;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 namespace ECommerce.API
 {
@@ -23,10 +29,21 @@ namespace ECommerce.API
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
                     ));
+            //builder.Services.AddControllers().AddJsonOptions(x =>
+            //{
+            //    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+            //});
+
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ECommerceDbContext>()
                 .AddDefaultTokenProviders();
+
+            // Fix for CS1503: Pass a lambda to configure MediatRServiceConfiguration
+            builder.Services.AddMediatR(config =>
+            {
+                config.RegisterServicesFromAssembly(typeof(MidiatrEntryPoint).Assembly);
+            });
 
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -39,14 +56,14 @@ namespace ECommerce.API
                 options.Password.RequireUppercase = true;
                 // User settings
                 options.User.RequireUniqueEmail = true;
-                
+
             });
 
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme; 
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -63,6 +80,9 @@ namespace ECommerce.API
                     };
                 });
 
+            // Fix for CS0747 and CS1003: Move the scoped service registration outside of the JwtBearer configuration block
+            builder.Services.AddScoped<IRepository<Domain.Entities.Product>,ProductRepository>();
+            builder.Services.AddScoped<IECommerceDbContext, ECommerceDbContext>();
 
             var app = builder.Build();
 
@@ -79,7 +99,7 @@ namespace ECommerce.API
             //app.UseCors
             //    (builder =>
             //    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-           
+
 
             app.MapControllers();
 

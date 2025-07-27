@@ -11,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Product\Commands\" />
-    <Folder Include="Product\Queries\" />
+    <PackageReference Include="MediatR" Version="13.0.0" />
   </ItemGroup>
 
 </Project>

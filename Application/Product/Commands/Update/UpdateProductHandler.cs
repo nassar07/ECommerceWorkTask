@@ -39,6 +39,7 @@ namespace Application.Product.Commands.Update
                 {
                     Size = size.Size,
                     Price = size.Price,
+                    Quantity = size.Quantity
                 });
             }
 
@@ -58,6 +59,7 @@ namespace Application.Product.Commands.Update
                 {
                     Size = s.Size,
                     Price = s.Price,
+                    Quantity = s.Quantity
                     
                 }).ToList()
             };

@@ -56,7 +56,10 @@ namespace ECommerce.API.Controllers.Account
                 }
 
 
-                return Ok("Created");
+                return Ok(new
+                {
+                    message = "Created"
+                });
 
             }
             return BadRequest(ModelState);

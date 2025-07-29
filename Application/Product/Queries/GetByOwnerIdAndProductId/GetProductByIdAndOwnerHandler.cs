@@ -36,7 +36,8 @@ namespace Application.Product.Queries.GetByOwnerIdAndProductId
                 Sizes = product.Sizes.Select(s => new ProductSizeDTO
                 {
                     Size = s.Size,
-                    Price = s.Price
+                    Price = s.Price,
+                    Quantity = s.Quantity
                 }).ToList()
             };
         }

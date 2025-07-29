@@ -96,9 +96,9 @@ namespace ECommerce.API
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-            //app.UseCors
-            //    (builder =>
-            //    builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            app.UseCors
+                (builder =>
+                builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 
 
             app.MapControllers();

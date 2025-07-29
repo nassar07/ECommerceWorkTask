@@ -31,7 +31,8 @@ namespace Application.Product.Commands.Create
                 Sizes = request.ProductFromRequest.Sizes.Select(size => new ProductSize
                 {
                     Size = size.Size,
-                    Price = size.Price
+                    Price = size.Price,
+                    Quantity = size.Quantity
                 }).ToList()
             };
 
@@ -51,7 +52,8 @@ namespace Application.Product.Commands.Create
                 {
                     Id = s.Id,
                     Size = s.Size,
-                    Price = s.Price
+                    Price = s.Price,
+                    Quantity = s.Quantity
                 }).ToList()
             };
 

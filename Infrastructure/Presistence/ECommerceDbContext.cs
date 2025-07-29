@@ -52,6 +52,7 @@ namespace Infrastructure.Presistence
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Size).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Price).HasPrecision(18, 2);
+                entity.Property(e => e.Quantity).IsRequired();
 
                 entity.HasOne(e => e.Product)
                       .WithMany(p => p.Sizes)

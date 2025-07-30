@@ -28,6 +28,14 @@ namespace Infrastructure.Repository
             await Context.Set<Product>().AddAsync(entity);
         }
 
+        public async Task AddProductSize(ProductSize entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity), "ProductSize cannot be null");
+            
+            await Context.Set<ProductSize>().AddAsync(entity);
+        }
+
         public async Task Delete(Product entity)
         {
             Context.Set<Product>().Remove(entity);
@@ -46,9 +54,20 @@ namespace Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public Task<Product> GetById(int id)
+        public async Task<List<Product>> GetAllProductsByCategoryId(int id)
         {
-            throw new NotImplementedException();
+            return await Context.Set<Product>()
+                .Include(p => p.Sizes).Where(p => p.CategoryId == id).ToListAsync();
+                
+        }
+
+
+
+        public async Task<Product?> GetById(int id)
+        {
+            return await Context.Set<Product>()
+                .Include(p => p.Sizes)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Product?> GetByIdAndOwner(int id, string ownerId)
@@ -64,6 +83,19 @@ namespace Infrastructure.Repository
                 .Include(p => p.Sizes)
                 .Where(p => p.OwnerId == ownerId)
                 .ToListAsync();
+        }
+
+        public async Task<List<ProducSizesDTO>> GetProductSizes(int productId)
+        {
+            return await Context.Set<ProductSize>()
+                .Where(ps => ps.ProductId == productId)
+                .Select(ps => new ProducSizesDTO
+                {
+                    ProductId = ps.ProductId,
+                    Size = ps.Size,
+                    Price = ps.Price,
+                    Quantity = ps.Quantity
+                }).ToListAsync();
         }
 
         public Task SaveChanges()

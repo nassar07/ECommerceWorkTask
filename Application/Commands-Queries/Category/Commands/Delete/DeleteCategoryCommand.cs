@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 
-namespace Application.Product.Commands.Delete
+namespace Application.Commands_Queries.Category.Commands.Delete
 {
-    public record DeleteProductCommand(int ProductId, string OwnerId) : IRequest<Unit>;
-
+    public record DeleteCategoryCommand(int Id) : IRequest<bool>;
+    
 }

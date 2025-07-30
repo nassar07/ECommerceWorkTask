@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 using Application.DTO.Product;
 using MediatR;
 
-namespace Application.Product.Commands.Update
+namespace Application.Commands_Queries.Product_Size.Commands
 {
-    public record UpdateProductCommand(int ProductId, string OwnerId, ProductDTO Product) : IRequest<ProductDTO>;
-
-
-
+    public record CreateProductSizeCommand(ProducSizesDTO producSizes) : IRequest<int>;
+    
 
 }

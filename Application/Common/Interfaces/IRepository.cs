@@ -19,5 +19,9 @@ namespace Application.Common.Interfaces
         Task SaveChanges();
         Task Delete(T entity);
         Task<T?> GetByIdAndOwner(int id, string ownerId);
+        Task<List<ProducSizesDTO>> GetProductSizes(int productId);
+        Task AddProductSize(ProductSize entity);
+
+        Task<List<T>> GetAllProductsByCategoryId(int id);
     }
 }

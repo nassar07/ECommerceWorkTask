@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Product.Commands.Delete
 {
-    public class DeleteProductHandler : IRequestHandler<DeleteProductCommand , Unit>
+    public class DeleteProductHandler : IRequestHandler<DeleteProductCommand , bool>
     {
         private readonly IRepository<Domain.Entities.Product> _context;
 
@@ -17,16 +17,16 @@ namespace Application.Product.Commands.Delete
             _context = context;
         }
 
-        public async Task<Unit> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
         {
-            var product = await _context.GetByIdAndOwner(request.ProductId, request.OwnerId);
+            var product = await _context.GetById(request.ProductId);
             if (product is null)
-                throw new KeyNotFoundException("Product not found or you are not the owner");
+                return false;
 
             await _context.Delete(product);
             await _context.SaveChanges();
 
-            return Unit.Value;
+            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Application.Commands_Queries.Product_Size.Commands;
 using Application.DTO.Product;
 using Application.Product.Commands.Create;
 using Application.Product.Commands.Delete;
@@ -21,7 +22,7 @@ namespace ECommerce.API.Controllers.Product
 
         public IMediator Mediator { get; }
 
-        [HttpGet("GetAll")]
+        [HttpGet("GetListOfProducts")]
         public IActionResult GetAll()
         {
             
@@ -34,7 +35,19 @@ namespace ECommerce.API.Controllers.Product
             return Ok(result);
         }
 
-        [HttpGet("GetByOwnerId/{id}")]
+        [HttpGet("GetProductById/{id}")]
+        public IActionResult GetById(int id)
+        {
+            var query = new Application.Commands_Queries.Product.Queries.GetById.GetByIdQuery(id);
+            var result = Mediator.Send(query).Result;
+            if (result == null)
+            {
+                return NotFound($"Product with ID: {id} not found.");
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("GetListOfProductsOfOwnerByOwnerId/{id}")]
         public IActionResult GetByOwnerId(string id) 
         {
             var query = new Application.Product.Queries.GetByOwnerId.GetByOwnerIdQuery(id);
@@ -47,7 +60,21 @@ namespace ECommerce.API.Controllers.Product
 
         }
 
-        [HttpPost("CreateProduct")]
+        [HttpGet("GetProductByIdAndOwnerId/{productId}/{ownerId}")]
+        public IActionResult GetProductByIdAndOwne(int productId , string ownerId)
+        {
+            var query = new Application.Product.Queries.GetByOwnerIdAndProductId.GetProductByIdAndOwnerQuery(productId, ownerId);
+            var result = Mediator.Send(query).Result;
+            if (result == null)
+            {
+                return NotFound($"Product with ID: {productId} for owner ID: {ownerId} not found.");
+            }
+            return Ok(result);
+        }
+
+
+
+        [HttpPost("AddProduct")]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto)
         {
             var command = new CreateProductCommand(dto);
@@ -55,20 +82,60 @@ namespace ECommerce.API.Controllers.Product
             return Ok(result);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromQuery] string ownerId, [FromBody] ProductDTO productDto)
+        [HttpPut("UpdateProduct/{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDTO productFromRequest)
         {
-            await Mediator.Send(new UpdateProductCommand(id, ownerId, productDto));
-            return NoContent();
+            if (productFromRequest == null)
+            {
+                return BadRequest("Product data is required.");
+            }
+            var command = new UpdateProductCommand(id, productFromRequest);
+            var result = await Mediator.Send(command);
+            if (!result)
+            {
+                return NotFound($"Product with ID: {id} not found or you are not the owner.");
+            }
+            return Ok("Product updated successfully.");
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id, [FromQuery] string ownerId)
+        [HttpDelete("DeleteProduct/{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
-            await Mediator.Send(new DeleteProductCommand(id, ownerId));
-            return NoContent();
+            var result = await Mediator.Send(new DeleteProductCommand(id));
+            if(!result)
+            {
+                return NotFound($"Product with ID: {id} not found.");
+            }
+            return Ok("Product deleted successfully.");
         }
 
+        [HttpGet("GetProductSizes/{productId}")]
+        public async Task<IActionResult> GetProductSizes(int productId)
+        {
+            var query = new Application.Commands_Queries.Product_Size.Queries.GetProductSizesQuery(productId);
+            var result = await Mediator.Send(query);
+            if (result == null || !result.Any())
+            {
+                return NotFound($"No sizes found for product ID: {productId}");
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("CreateProductSize")]
+        public async Task<IActionResult> CreateProductSize([FromBody] ProducSizesDTO producSizes)
+        {
+            var command = new CreateProductSizeCommand(producSizes);
+            if (command == null)
+            {
+                return BadRequest("Product size data is required.");
+            }
+            var result = await Mediator.Send(command);
+            if (result == 0)
+            {
+                return BadRequest("Failed to create product size. Product not found or invalid data.");
+            }
+            return Ok($"Product size created successfully with ID: {result}");
+        }
 
 
 

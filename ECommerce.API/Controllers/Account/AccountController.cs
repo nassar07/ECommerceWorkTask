@@ -50,10 +50,9 @@ namespace ECommerce.API.Controllers.Account
                     return BadRequest(ModelState);
                 }
 
-                if (userFromBody.AccountType == "Customer" || userFromBody.AccountType == "ProductOwner")
-                {
-                    await UserManager.AddToRoleAsync(user, userFromBody.AccountType);
-                }
+                
+                await UserManager.AddToRoleAsync(user, userFromBody.AccountType);
+                
 
 
                 return Ok(new

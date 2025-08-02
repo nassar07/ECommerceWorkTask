@@ -11,5 +11,6 @@ namespace Infrastructure.Identity
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
+        public string? FcmToken { get; set; }
     }
 }

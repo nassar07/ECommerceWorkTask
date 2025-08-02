@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Application.Commands_Queries.Product_Size.Commands;
+using Application.Commands_Queries.Product_Size.Commands.Update;
 using Application.DTO.Product;
 using Application.Product.Commands.Create;
 using Application.Product.Commands.Delete;
@@ -137,7 +138,22 @@ namespace ECommerce.API.Controllers.Product
             return Ok($"Product size created successfully with ID: {result}");
         }
 
+        [HttpPut("UpdateSize/{Id}")]
+        public async Task<bool> UpdateProductSize(int Id , UpdateProductSizeDTO productSizeDTO)
+        {
+            var command = new UpdateProductSizeCommand(Id, productSizeDTO);
+            if (command == null)
+            {
+                return false;
+            }
+            var result = await Mediator.Send(command);
+            if (!result)
+            {
+                return false;
+            }
+            return true;
 
+        }
 
     }
 }

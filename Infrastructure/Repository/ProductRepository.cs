@@ -35,6 +35,7 @@ namespace Infrastructure.Repository
             
             await Context.Set<ProductSize>().AddAsync(entity);
         }
+        
 
         public async Task Delete(Product entity)
         {
@@ -85,18 +86,31 @@ namespace Infrastructure.Repository
                 .ToListAsync();
         }
 
+        public async Task<ProductSize?> GetProductSizeById(int id)
+        {
+            return await Context.Set<ProductSize>()
+                .FirstOrDefaultAsync(ps => ps.Id == id);
+
+        }
+
         public async Task<List<ProducSizesDTO>> GetProductSizes(int productId)
         {
             return await Context.Set<ProductSize>()
                 .Where(ps => ps.ProductId == productId)
                 .Select(ps => new ProducSizesDTO
                 {
+                    Id = ps.Id,
                     ProductId = ps.ProductId,
                     Size = ps.Size,
                     Price = ps.Price,
                     Quantity = ps.Quantity
                 }).ToListAsync();
         }
+
+
+
+
+
 
         public Task SaveChanges()
         {
@@ -108,5 +122,12 @@ namespace Infrastructure.Repository
             Context.Set<Product>().Update(entity);
             return await Task.FromResult(entity);
         }
+
+        public async Task<bool> UpdateProductSize(ProductSize entity)
+        {
+            Context.Set<ProductSize>().Update(entity);
+            return await Task.FromResult(true);
+        }
+        
     }
 }

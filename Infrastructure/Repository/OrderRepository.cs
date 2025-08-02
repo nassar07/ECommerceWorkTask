@@ -8,6 +8,7 @@ using Application.DTO.Order;
 using Domain.Entities;
 using Infrastructure.Presistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructure.Repository
 {
@@ -23,6 +24,14 @@ namespace Infrastructure.Repository
         public async Task CreateOrderAsync(Order order)
         {
             await Context.Set<Order>().AddAsync(order);
+        }
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+        {
+            return await Context.Database.BeginTransactionAsync(cancellationToken);
+        }
+        public async Task<ProductSize?> GetProductSizeByIdAsync(int productSizeId, CancellationToken cancellationToken)
+        {
+            return await Context.Set<ProductSize>().FindAsync(new object[] { productSizeId }, cancellationToken);
         }
 
         public async Task<List<Order>> GetOrdersByClientIdAsync(string clientId)

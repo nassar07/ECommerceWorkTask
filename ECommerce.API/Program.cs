@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Application;
 using Application.Common.Interfaces;
+using Infrastructure;
 using Domain.Entities;
 using Infrastructure.Identity;
 using Infrastructure.Presistence;
@@ -34,6 +35,8 @@ namespace ECommerce.API
             //{
             //    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             //});
+
+
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -86,7 +89,7 @@ namespace ECommerce.API
             builder.Services.AddScoped<ICategoryRepository<Category>, CategoryRepository>();
             builder.Services.AddScoped<IECommerceDbContext, ECommerceDbContext>();
             builder.Services.AddScoped<IOrderRepository , OrderRepository>();
-            
+            builder.Services.AddInfrastructure(builder.Configuration);
 
             var app = builder.Build();
 

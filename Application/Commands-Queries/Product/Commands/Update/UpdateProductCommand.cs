@@ -8,7 +8,16 @@ using MediatR;
 
 namespace Application.Product.Commands.Update
 {
-    public record UpdateProductCommand(int ProductId, UpdateProductDTO Product) : IRequest<bool>;
+    public class UpdateProductCommand : IRequest<bool>
+    {
+        public UpdateProductDTO Product { get; set; }
+
+        public UpdateProductCommand(UpdateProductDTO product)
+        {
+            Product = product;
+        }
+    }
+
 
 
 

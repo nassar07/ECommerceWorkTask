@@ -76,28 +76,28 @@ namespace ECommerce.API.Controllers.Product
 
 
         [HttpPost("AddProduct")]
-        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDTO dto)
+        public async Task<IActionResult> CreateProduct([FromForm] CreateProductDTO dto)
         {
             var command = new CreateProductCommand(dto);
             var result = await Mediator.Send(command);
             return Ok(result);
         }
 
-        [HttpPut("UpdateProduct/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDTO productFromRequest)
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update([FromForm] UpdateProductDTO productDto)
         {
-            if (productFromRequest == null)
-            {
-                return BadRequest("Product data is required.");
-            }
-            var command = new UpdateProductCommand(id, productFromRequest);
-            var result = await Mediator.Send(command);
+            if (productDto == null || productDto.ProductId <= 0)
+                return BadRequest("Invalid product data.");
+
+            var result = await Mediator.Send(new UpdateProductCommand(productDto));
             if (!result)
-            {
-                return NotFound($"Product with ID: {id} not found or you are not the owner.");
-            }
+                return NotFound("Product not found.");
+
             return Ok("Product updated successfully.");
         }
+
+
+
 
         [HttpDelete("DeleteProduct/{id}")]
         public async Task<IActionResult> Delete(int id)

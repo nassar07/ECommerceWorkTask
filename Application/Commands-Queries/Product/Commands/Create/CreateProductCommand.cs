@@ -8,6 +8,13 @@ using MediatR;
 
 namespace Application.Product.Commands.Create
 {
-    public record CreateProductCommand(CreateProductDTO ProductFromRequest) : IRequest<ProductResponseDTO>;
-    
+    public class CreateProductCommand : IRequest<ProductResponseDTO>
+    {
+        public CreateProductDTO ProductFromRequest { get; set; }
+
+        public CreateProductCommand(CreateProductDTO dto)
+        {
+            ProductFromRequest = dto;
+        }
+    }
 }

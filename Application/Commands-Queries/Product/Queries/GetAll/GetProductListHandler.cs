@@ -32,6 +32,7 @@ namespace Application.Product.Queries.GetAll
                 OwnerId = p.OwnerId,
                 Sizes = p.Sizes.Select(s => new ProductSizeDTO
                 {
+                    Id = s.Id,
                     Size = s.Size,
                     Price = s.Price,
                     Quantity = s.Quantity

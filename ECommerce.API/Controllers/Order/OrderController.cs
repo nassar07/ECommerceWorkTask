@@ -22,9 +22,7 @@ namespace ECommerce.API.Controllers.Order
         [HttpPost("Create")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            command.UserId = userId;
+            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var result = await _mediator.Send(command);
             return Ok(result);
@@ -51,6 +49,9 @@ namespace ECommerce.API.Controllers.Order
             var result = await _mediator.Send(new GetOrdersByClientIdQuery(clientId));
             return Ok(result);
         }
+
+
+
         [HttpPut("{orderId}/ship")]
         public async Task<IActionResult> MarkAsShipped(int orderId)
         {

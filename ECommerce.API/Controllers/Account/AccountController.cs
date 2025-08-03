@@ -68,65 +68,65 @@ namespace ECommerce.API.Controllers.Account
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO userFromReq)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userFromDb = await UserManager.FindByEmailAsync(userFromReq.Email);
+            if (userFromDb == null)
             {
-                var userFromDb = await UserManager.FindByEmailAsync(userFromReq.Email);
-
-                if (userFromDb != null)
-                {
-                    
-                    bool isValidPassword = await UserManager.CheckPasswordAsync(userFromDb, userFromReq.Password);
-                    
-                    
-                    if (isValidPassword == true)
-                    {
-
-                        var UserRoles = await UserManager.GetRolesAsync(userFromDb);
-                        List<Claim> myClaims = new List<Claim>();
-
-                        myClaims.Add(new Claim(ClaimTypes.NameIdentifier, userFromDb.Id));
-                        myClaims.Add(new Claim(ClaimTypes.Email, userFromDb.Email));
-                        myClaims.Add(new Claim(ClaimTypes.Name, userFromDb.FirstName + " " + userFromDb.LastName));
-                        myClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
-
-
-                        foreach (var role in UserRoles)
-                        {
-                            myClaims.Add(new Claim(ClaimTypes.Role, role));
-                        }
-
-                        SymmetricSecurityKey SignKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(Config["JWT:Secret"]));
-
-                        SigningCredentials signingCred = new SigningCredentials(
-                            SignKey, SecurityAlgorithms.HmacSha256);
-
-                        JwtSecurityToken Token = new JwtSecurityToken(
-                            issuer: Config["JWT:issuer"],
-                            audience: Config["JWT:audience"],
-                            expires: DateTime.Now.AddHours(1),
-                            claims: myClaims,
-                            signingCredentials: signingCred
-                            );
-
-                        MyTokenDTO myToken = new MyTokenDTO
-                        { Token = new JwtSecurityTokenHandler().WriteToken(Token), Expiration = Token.ValidTo };
-
-                        return Ok(myToken);
-
-                        
-                    }
-                    ModelState.AddModelError("Password", "Invalid password");
-
-
-                }
-                
                 ModelState.AddModelError("Email", "Invalid email");
-                
+                return BadRequest(ModelState);
             }
-            return BadRequest(ModelState);
+
+            bool isValidPassword = await UserManager.CheckPasswordAsync(userFromDb, userFromReq.Password);
+            if (!isValidPassword)
+            {
+                ModelState.AddModelError("Password", "Invalid password");
+                return BadRequest(ModelState);
+            }
+
+            
+            if (!string.IsNullOrEmpty(userFromReq.FcmToken))
+            {
+                userFromDb.FcmToken = userFromReq.FcmToken;
+                await UserManager.UpdateAsync(userFromDb);
+            }
+
+            var UserRoles = await UserManager.GetRolesAsync(userFromDb);
+            List<Claim> myClaims = new()
+    {
+        new Claim(ClaimTypes.NameIdentifier, userFromDb.Id),
+        new Claim(ClaimTypes.Email, userFromDb.Email),
+        new Claim(ClaimTypes.Name, userFromDb.FirstName + " " + userFromDb.LastName),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
+
+            foreach (var role in UserRoles)
+            {
+                myClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var SignKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config["JWT:Secret"]));
+            var signingCred = new SigningCredentials(SignKey, SecurityAlgorithms.HmacSha256);
+
+            var Token = new JwtSecurityToken(
+                issuer: Config["JWT:issuer"],
+                audience: Config["JWT:audience"],
+                expires: DateTime.Now.AddHours(1),
+                claims: myClaims,
+                signingCredentials: signingCred
+            );
+
+            var myToken = new MyTokenDTO
+            {
+                Token = new JwtSecurityTokenHandler().WriteToken(Token),
+                Expiration = Token.ValidTo
+            };
+
+            return Ok(myToken);
         }
-        
+
+
 
 
 

@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Application;
 using Application.Common.Interfaces;
+using Infrastructure;
 using Domain.Entities;
 using Infrastructure.Identity;
 using Infrastructure.Presistence;
@@ -11,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using ECommerce.API.Services;
+using Microsoft.Extensions.FileProviders;
 namespace ECommerce.API
 {
     public class Program
@@ -34,6 +37,8 @@ namespace ECommerce.API
             //{
             //    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             //});
+
+
 
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -86,7 +91,8 @@ namespace ECommerce.API
             builder.Services.AddScoped<ICategoryRepository<Category>, CategoryRepository>();
             builder.Services.AddScoped<IECommerceDbContext, ECommerceDbContext>();
             builder.Services.AddScoped<IOrderRepository , OrderRepository>();
-            
+            builder.Services.AddInfrastructure(builder.Configuration);
+            builder.Services.AddScoped<IFileService, FileService>();
 
             var app = builder.Build();
 
@@ -97,6 +103,8 @@ namespace ECommerce.API
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
@@ -106,6 +114,10 @@ namespace ECommerce.API
 
 
             app.MapControllers();
+
+            
+
+
 
             app.Run();
         }

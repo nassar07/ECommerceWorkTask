@@ -21,7 +21,8 @@ namespace Application.Common.Interfaces
         Task<T?> GetByIdAndOwner(int id, string ownerId);
         Task<List<ProducSizesDTO>> GetProductSizes(int productId);
         Task AddProductSize(ProductSize entity);
-
         Task<List<T>> GetAllProductsByCategoryId(int id);
+        Task<bool> UpdateProductSize(ProductSize entity);
+        Task<ProductSize?> GetProductSizeById(int id);
     }
 }

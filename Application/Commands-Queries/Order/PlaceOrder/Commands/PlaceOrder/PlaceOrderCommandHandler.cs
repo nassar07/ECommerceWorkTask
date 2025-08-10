@@ -53,7 +53,8 @@ namespace Application.Commands_Queries.Order.PlaceOrder.Commands
                 CreatedAt = DateTime.UtcNow,
                 ShippingAddress = request.ShippingAddress,
                 IsShipped = false,
-                OrderItems = orderItems
+                OrderItems = orderItems,
+                TotalPrice = request.TotalPrice
             };
 
             await _context.CreateOrderAsync(order);

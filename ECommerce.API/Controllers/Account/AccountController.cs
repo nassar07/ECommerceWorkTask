@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 using Application.DTO.Login;
 using Application.DTO.Register;
 using Application.DTO.Token;
+using Application.Features.Auth.Login;
+using Application.Features.Auth.Register;
 using Infrastructure.Identity;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,116 +20,40 @@ namespace ECommerce.API.Controllers.Account
     [ApiController]
     public class AccountController : ControllerBase
     {
-        public UserManager<ApplicationUser> UserManager { get; }
-        public IConfiguration Config { get; }
-        public AccountController(UserManager<ApplicationUser> userManager , IConfiguration Config)
+        public IMediator Mediator { get; }
+
+        public AccountController(IMediator mediator, IConfiguration Config)
         {
-            UserManager = userManager;
-            this.Config = Config;
+            Mediator = mediator;
         }
 
         
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(RegisterDTO userFromBody)
+        public async Task<IActionResult> Register(RegisterDTO regFromBody)
         {
-            if (ModelState.IsValid)
-            {
-                ApplicationUser user = new();
+            var command = new RegisterCommand(regFromBody);
+            var result = await Mediator.Send(command);
 
-                user.FirstName = userFromBody.FirstName;
-                user.LastName = userFromBody.LastName;
-                user.UserName = userFromBody.EmailAddress;
-                user.Email = userFromBody.EmailAddress;
+            if (!result.Success)
+                return BadRequest(result.Errors);
 
-
-                IdentityResult result = await UserManager.CreateAsync(user, userFromBody.Password);
-
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError("Password", error.Description);
-                    }
-                    return BadRequest(ModelState);
-                }
-
-                
-                await UserManager.AddToRoleAsync(user, userFromBody.AccountType);
-                
-
-
-                return Ok(new
-                {
-                    message = "Created"
-                });
-
-            }
-            return BadRequest(ModelState);
+            return Ok(new {Message = "Created"}); 
         }
 
-
+        
         [HttpPost("Login")]
         public async Task<IActionResult> Login(LoginDTO userFromReq)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var command = new LoginCommand(userFromReq);
+            var result = await Mediator.Send(command);
 
-            var userFromDb = await UserManager.FindByEmailAsync(userFromReq.Email);
-            if (userFromDb == null)
-            {
-                ModelState.AddModelError("Email", "Invalid email");
-                return BadRequest(ModelState);
-            }
+            if (!result.Success)
+                return BadRequest(result.Errors);
 
-            bool isValidPassword = await UserManager.CheckPasswordAsync(userFromDb, userFromReq.Password);
-            if (!isValidPassword)
-            {
-                ModelState.AddModelError("Password", "Invalid password");
-                return BadRequest(ModelState);
-            }
-
-            
-            if (!string.IsNullOrEmpty(userFromReq.FcmToken))
-            {
-                userFromDb.FcmToken = userFromReq.FcmToken;
-                await UserManager.UpdateAsync(userFromDb);
-            }
-
-            var UserRoles = await UserManager.GetRolesAsync(userFromDb);
-            List<Claim> myClaims = new()
-    {
-        new Claim(ClaimTypes.NameIdentifier, userFromDb.Id),
-        new Claim(ClaimTypes.Email, userFromDb.Email),
-        new Claim(ClaimTypes.Name, userFromDb.FirstName + " " + userFromDb.LastName),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
-
-            foreach (var role in UserRoles)
-            {
-                myClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var SignKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config["JWT:Secret"]));
-            var signingCred = new SigningCredentials(SignKey, SecurityAlgorithms.HmacSha256);
-
-            var Token = new JwtSecurityToken(
-                issuer: Config["JWT:issuer"],
-                audience: Config["JWT:audience"],
-                expires: DateTime.Now.AddHours(1),
-                claims: myClaims,
-                signingCredentials: signingCred
-            );
-
-            var myToken = new MyTokenDTO
-            {
-                Token = new JwtSecurityTokenHandler().WriteToken(Token),
-                Expiration = Token.ValidTo
-            };
-
-            return Ok(myToken);
+            return Ok(result.Token);
         }
 
-
+        
 
 
 

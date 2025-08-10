@@ -6,6 +6,7 @@ using Application.Product.Commands.Create;
 using Application.Product.Commands.Delete;
 using Application.Product.Commands.Update;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -14,6 +15,7 @@ namespace ECommerce.API.Controllers.Product
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class ProductController : ControllerBase
     {
         public ProductController(IMediator mediator)
@@ -23,6 +25,9 @@ namespace ECommerce.API.Controllers.Product
 
         public IMediator Mediator { get; }
 
+
+
+        
         [HttpGet("GetListOfProducts")]
         public IActionResult GetAll()
         {
@@ -74,7 +79,7 @@ namespace ECommerce.API.Controllers.Product
         }
 
 
-
+        
         [HttpPost("AddProduct")]
         public async Task<IActionResult> CreateProduct([FromForm] CreateProductDTO dto)
         {
@@ -83,6 +88,8 @@ namespace ECommerce.API.Controllers.Product
             return Ok(result);
         }
 
+
+        
         [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] UpdateProductDTO productDto)
         {
@@ -98,7 +105,7 @@ namespace ECommerce.API.Controllers.Product
 
 
 
-
+        
         [HttpDelete("DeleteProduct/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -122,6 +129,9 @@ namespace ECommerce.API.Controllers.Product
             return Ok(result);
         }
 
+
+
+        
         [HttpPost("CreateProductSize")]
         public async Task<IActionResult> CreateProductSize([FromBody] ProducSizesDTO producSizes)
         {
@@ -138,6 +148,8 @@ namespace ECommerce.API.Controllers.Product
             return Ok($"Product size created successfully with ID: {result}");
         }
 
+
+        
         [HttpPut("UpdateSize/{Id}")]
         public async Task<bool> UpdateProductSize(int Id , UpdateProductSizeDTO productSizeDTO)
         {

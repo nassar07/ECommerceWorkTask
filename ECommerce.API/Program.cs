@@ -38,6 +38,9 @@ namespace ECommerce.API
             //    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
             //});
 
+            builder.Services.AddAuthentication();
+            builder.Services.AddAuthorization();
+
 
 
             builder.Services.AddHttpContextAccessor();
@@ -107,6 +110,8 @@ namespace ECommerce.API
 
             app.UseHttpsRedirection();
 
+
+            app.UseAuthorization();
             app.UseAuthorization();
             app.UseCors
                 (builder =>

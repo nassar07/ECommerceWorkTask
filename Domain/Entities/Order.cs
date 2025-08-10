@@ -13,7 +13,7 @@ namespace Domain.Entities
         public DateTime CreatedAt { get; set; }
         public bool IsShipped { get; set; }
         public string ShippingAddress { get; set; }
-
+        public decimal TotalPrice { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; }
     }
 }

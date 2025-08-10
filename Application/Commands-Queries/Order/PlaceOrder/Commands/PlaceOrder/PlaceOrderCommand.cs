@@ -12,6 +12,7 @@ namespace Application.Commands_Queries.Order.PlaceOrder.Commands
     {
         public string UserId { get; set; }
         public string ShippingAddress { get; set; }
+        public decimal TotalPrice { get; set; }
         public List<OrderItemDTO> Items { get; set; }
     }
 

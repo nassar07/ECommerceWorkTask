@@ -6,6 +6,8 @@ using MediatR;
 using Application.Commands_Queries.Order.PlaceOrder.Queries.GetAll;
 using Application.Commands_Queries.Order.PlaceOrder.Queries.GetOrdersByClientId;
 using Application.Commands_Queries.Order.PlaceOrder.Commands.MarkAsShipped;
+using Application.Commands_Queries.Order.PlaceOrder.Commands.FailPayment;
+using Application.Commands_Queries.Order.PlaceOrder.Commands.ConfirmPayment;
 
 namespace ECommerce.API.Controllers.Order
 {
@@ -22,8 +24,6 @@ namespace ECommerce.API.Controllers.Order
         [HttpPost("Create")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
         {
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             var result = await _mediator.Send(command);
             return Ok(result);
         }
@@ -59,6 +59,24 @@ namespace ECommerce.API.Controllers.Order
             if (!result) return NotFound();
             return Ok(new { success = true });
         }
+
+        [HttpPut("{orderId}/confirm-payment")]
+        public async Task<IActionResult> ConfirmPayment(int orderId)
+        {
+            var result = await _mediator.Send(new ConfirmPaymentCommand(orderId));
+            if (!result) return NotFound();
+            return Ok(new { success = true, message = "Payment confirmed successfully" });
+        }
+
+
+        [HttpPut("{orderId}/fail-payment")]
+        public async Task<IActionResult> FailPayment(int orderId)
+        {
+            var result = await _mediator.Send(new FailPaymentCommand(orderId));
+            if (!result) return NotFound();
+            return Ok(new { success = true, message = "Payment marked as failed" });
+        }
+
 
 
 

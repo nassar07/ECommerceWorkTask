@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 using Application.Common.Interfaces;
 using Domain.Entities;
 using MediatR;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
+using Application.DTO.Order;
 
 namespace Application.Commands_Queries.Order.PlaceOrder.Commands
 {
-    public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, int>
+    public class CreateOrderHandler : IRequestHandler<CreateOrderCommand, CreateOrderResultDto>
     {
         private readonly IOrderRepository _context;
         
@@ -21,7 +23,7 @@ namespace Application.Commands_Queries.Order.PlaceOrder.Commands
             _context = context;
         }
 
-        public async Task<int> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
+        public async Task<CreateOrderResultDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
@@ -54,14 +56,27 @@ namespace Application.Commands_Queries.Order.PlaceOrder.Commands
                 ShippingAddress = request.ShippingAddress,
                 IsShipped = false,
                 OrderItems = orderItems,
-                TotalPrice = request.TotalPrice
+                TotalPrice = request.TotalPrice,
+
+                PaymentMethod = request.PaymentMethod,
+                PaymentStatus = request.PaymentMethod == PaymentMethod.CashOnDelivery ? PaymentStatus.Pending : PaymentStatus.Pending
             };
 
             await _context.CreateOrderAsync(order);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync(cancellationToken);
 
-            return order.Id;
+            string paymentUrl = null;
+            if (request.PaymentMethod != PaymentMethod.CashOnDelivery)
+            {
+                paymentUrl = $"http://localhost:4200/checkout/payment/{order.Id}";
+            }
+
+            return new CreateOrderResultDto
+            {
+                OrderId = order.Id,
+                PaymentUrl = paymentUrl
+            };
         }
 
     }

@@ -66,7 +66,6 @@ namespace Infrastructure.Repository
         {
             var order = await Context.Orders.FindAsync(orderId);
             if (order == null) return false;
-
             order.IsShipped = true;
             await Context.SaveChangesAsync();
             return true;
